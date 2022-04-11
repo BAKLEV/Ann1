@@ -12,7 +12,7 @@ private :
 public :
     int openDev() {
         FT_STATUS st = FT_Open(0, &dev);
-//        FT_SetTimeouts(dev, 100, 5000);
+        FT_SetTimeouts(dev, 100, 5000);
         return st;
     }
 
