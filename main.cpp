@@ -1,8 +1,10 @@
+#include <iostream>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QString>
 #include "ftd2xx.h"
 #include "WinTypes.h"
+#include <unistd.h>
 
 class Device {
 private :
@@ -55,47 +57,92 @@ public :
 
 class PidRegulatorDev : public Device {
 private :
-    int Ki;
-    int Kd;
-    int Kp;
-
+    short int Ki;
+    short int Kd;
+    short int Kp;
+    short int SetTemp;
+    short int PDT;
+    short int I;
+    short int CycleTime;
+    short int CurTemp;
 
 public :
     PidRegulatorDev() {
         qDebug() << "device is open " << openDev();
     }
-    void initPidDev(int Ki, int Kd, int Kp) {}
-
-    void setPwm(int valPwm) {
-        unsigned char cmd[3] = {0xF0, 0x01, 0x7E};
+    void PidRegulatorDev::PidRegulatorDev (float ki, float kd, float kp, float settemp, float ct) {
+        Ki = ki;
+        Kd = kd;
+        Kp = kp;
+        SetTemp = settemp;
+        PDT = 0;
+        I = 0;
+        CycleTime = ct;
+    }
+    float PWMCalculate() {
+        getTemperature();
+        short int DT = SetTemp - CurTemp;
+        short int P = Kp * DT;
+        I = I + Ki * DT * CycleTime;
+        short int D = Kd * (DT - PDT) / CycleTime;
+        PDT = DT;
+        short int pid = P + I + D;
+        if pid > 1024:
+            pid = 1024;
+        return pid;
+    }
+    
+    void setPwm() {
+        //установка скважности
+        short int pid = PWMCalculate();
+        unsigned char yb, olb, syncb, nameb, xorb;
+        unsigned char cmd[5] = { 0x7E, 0x01, 0, 0, 0 };
+        yb = pid; // мл байт
+        olb = pid >> 8; // ст байт
+        syncb = 0x7E;
+        nameb = 0x01;
+        xorb = yb ^ olb ^ syncb ^ nameb;
+        cmd[2] = yb;
+        cmd[3] = olb;
+        cmd[4] = xorb;
         writeData((char*)cmd, 3);
     }
 
     float getTemperature() {
         //1. request temperature
+        unsigned char cmd[3] = { 0x7E, 0x02, 0x11};
+        writeData((char*)cmd, 3);
         //2. stupid wait...
+        sleep(0,1);
         //3. read value of temperature
-
-        char* data = new char [16];
+        char* data = new char[16];
         int size = 16;
         readData(data, size);
-
-//        convertCmdToTemperature(const char* cmd, int size)
-
-        return 0.1;
-
+        CurTemp = .....;
+        return 0;
     }
+
+    void convertCmdToTemperature(const char* cmd, int size) {
+       //перевод из 16 -- 2
+        //смещение вправо на незнач биты
+        //перевод в 10
+        //*0,0625
+     }
+
+       
+
 };
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    PidRegulatorDev *pidDev = new PidRegulatorDev();
-    pidDev->setPwm(100);
-
+    PidRegulatorDev *pidDev = new PidRegulatorDev("ki", "kp", "kd", "settemp", "cycletime");
     pidDev->getTemperature();
-
+    while CurTemp != SetTemp:
+        pidDev->getTemperature();
+        pidDev->setPwm;
+        pidDev->getTemperature();
     pidDev->closeDev();
     delete pidDev;
 
