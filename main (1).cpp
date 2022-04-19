@@ -100,8 +100,8 @@ public :
     }
     void work() {
         ofstream fout("project12.txt");
-        if (!fout.is_open()) // если файл не открыт
-            cout << "Файл не может быть открыт!\n"; // сообщить об этом
+        if (!fout.is_open())
+            cout << "File is not opened!\n";
         else
         {
             int i = 0;
