@@ -69,8 +69,7 @@ private :
     int Kp;
     int SetTemp;
     int PDT;
-    float I {160};
-    int CycleTime;
+    float I;
     float CurTemp;
 
 public :
@@ -83,8 +82,7 @@ public :
         Kp = kp;
         SetTemp = settemp;
         PDT = 0;
-        I = 160;
-        CycleTime = ct;
+        I = 0;
     }
 
     ~PidRegulatorDev() {
@@ -94,9 +92,9 @@ public :
     int PWMCalculate(float curTemp) {
         int DT = SetTemp - curTemp;
         int P = Kp * DT;
-        I = I + Ki * DT * CycleTime;
+        I = I + Ki * DT;
         std::cout << "I = " << I << std::endl;
-        int D = Kd * (DT - PDT) / CycleTime;
+        int D = Kd * (DT - PDT);
         PDT = DT;
         int pid = P + I + D;
         if (pid > 8096)
@@ -162,7 +160,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    PidRegulatorDev *pidDev = new PidRegulatorDev(0.5, 0, 300, 50, 1);
+    PidRegulatorDev *pidDev = new PidRegulatorDev(0.5, 0, 300, 50);
 
     pidDev->work();
 
