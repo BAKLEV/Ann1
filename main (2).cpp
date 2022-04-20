@@ -93,7 +93,6 @@ public :
         int DT = SetTemp - curTemp;
         int P = Kp * DT;
         I = I + Ki * DT;
-        std::cout << "I = " << I << std::endl;
         int D = Kd * (DT - PDT);
         PDT = DT;
         int pid = P + I + D;
