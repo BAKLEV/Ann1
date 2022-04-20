@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    PidRegulatorDev *pidDev = new PidRegulatorDev(0.5, 0, 300, 50);
+    PidRegulatorDev *pidDev = new PidRegulatorDev(Ki, Kp, Kd, SetTemp);
 
     pidDev->work();
 
