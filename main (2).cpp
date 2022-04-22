@@ -145,7 +145,6 @@ public :
         int size = 16;
         char data[16];// = new char[16];
         int readBytes = readData(&data[0], size);
-//        assert(readBytes == 0);
         //3. read value of temperature
         unsigned short tempTemp = (unsigned char)data[4];
         tempTemp <<= 8;
